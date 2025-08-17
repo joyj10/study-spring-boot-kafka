@@ -1,0 +1,18 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092   # Kafka 브로커 주소 (여러 개일 경우 ,로 구분)
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer  # 메시지 key 직렬화 방식
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer # 메시지 value 직렬화 방식 (Json 사용)
+      acks: all         # 메시지 전송 시 모든 리더+팔로워에게 확인받을 때까지 대기 (데이터 안정성 ↑)
+      retries: 3        # 전송 실패 시 재시도 횟수
+      batch-size: 16384 # 프로듀서가 배치로 묶어 보내는 최대 메시지 크기 (바이트 단위)
+      properties:
+        linger.ms: 1    # 배치 전송 대기 시간 (1ms 대기 후 배치 전송, 지연-처리량 트레이드오프, 0인 경우 메시지 즉시 전송)
+    consumer:
+      group-id: order-processing-group   # Consumer 그룹 ID (같은 그룹 내 Consumer들이 파티션 나눠 처리)
+      auto-offset-reset: earliest        # 초기 offset 없을 때 처리 시작 위치 (earliest: 가장 처음부터)
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer  # key 역직렬화 방식
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer # value 역직렬화 방식 (Json)
+      properties:
+        spring.json.trusted.packages: "com.study.springbootkafka.model" # 역직렬화 허용 패키지 (보안 목적)
